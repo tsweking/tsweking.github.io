@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tsweking Publisher</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&family=Tajawal:wght@500;800&display=swap">
+<style>
+/* Layout: brand band, then two stacked step cards (Connect, Compose & post) in one column. */
+:root{--bg:#F6F4F9;--surface:#FFFFFF;--fg:#25123F;--muted:#6A5C7E;--line:#E2DCEA;--brand:#5A2A90;--accent:#F2A218;--ok:#14804A;--bad:#C0263B;
+--display:'Tajawal','Cairo',system-ui,sans-serif;--body:'Cairo','Tajawal',system-ui,sans-serif}
+@media (prefers-color-scheme: dark){:root{--bg:#140D1F;--surface:#1E1530;--fg:#EFE9F7;--muted:#B2A5C6;--line:#352A48;--brand:#4A2278;--ok:#4CC38A;--bad:#FF7A8A;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.6}
+.in{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band{background:var(--brand);color:#fff}
+.band .in{padding-block:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.band b{font:800 22px var(--display)} .band span{font:800 13px var(--display);color:var(--accent);letter-spacing:.06em}
+main.in{padding-block:24px 56px;display:flex;flex-direction:column;gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px clamp(16px,4vw,26px);display:flex;flex-direction:column;gap:14px;min-width:0}
+h2{font:800 19px var(--display);margin:0}
+label{font-weight:600;font-size:14px;display:flex;flex-direction:column;gap:6px}
+input[type=text],input[type=password],select,textarea{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{min-height:110px;resize:vertical}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.row>*{min-width:0}
+video{width:220px;max-width:100%;aspect-ratio:9/16;background:#000;border-radius:12px}
+.grow{flex:1;min-width:240px;display:flex;flex-direction:column;gap:12px}
+.check{flex-direction:row;align-items:center;gap:10px;font-weight:500}
+.check input{width:18px;height:18px;accent-color:var(--brand)}
+button{font:800 15px var(--display);border:0;border-radius:999px;padding:11px 22px 9px;cursor:pointer;background:var(--brand);color:#fff;align-self:flex-start}
+button.tt{background:#111;color:#fff}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.who{display:flex;align-items:center;gap:12px}
+.who img{width:48px;height:48px;border-radius:50%;background:var(--line)}
+.status{font-size:14px;color:var(--muted);min-height:1.4em}
+.status.ok{color:var(--ok)} .status.bad{color:var(--bad)}
+.note{font-size:13px;color:var(--muted)}
+.disclose{border:1px dashed var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+<header class="band"><div class="in"><b>Tsweking Publisher</b><span>TSWEKING · تسويكنغ</span></div></header>
+<main class="in">
+
+<section class="card">
+  <h2>Team PIN</h2>
+  <label for="pin">Internal tool. Enter the team PIN to continue.
+    <input id="pin" type="password" autocomplete="off">
+  </label>
+</section>
+
+<section class="card" id="connectCard">
+  <h2>1. Connect TikTok account</h2>
+  <div class="who" id="who" hidden><img id="avatar" alt=""><div><div id="nick" style="font-weight:600"></div><div class="note">Connected TikTok account</div></div></div>
+  <button class="tt" id="connect" type="button">Connect with TikTok</button>
+  <div class="status" id="connStatus"></div>
+</section>
+
+<section class="card" id="composeCard">
+  <h2>2. Create post</h2>
+  <div class="row">
+    <video id="preview" controls playsinline muted></video>
+    <div class="grow">
+      <label for="video">Video
+        <select id="video"></select>
+      </label>
+      <label for="title">Caption
+        <textarea id="title" maxlength="2000"></textarea>
+      </label>
+      <label for="privacy">Who can view this video
+        <select id="privacy"><option value="" disabled selected>Select privacy</option></select>
+      </label>
+      <div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:4px">Allow users to</div>
+        <label class="check" for="cmt"><input id="cmt" type="checkbox">Comment</label>
+        <label class="check" for="duet"><input id="duet" type="checkbox">Duet</label>
+        <label class="check" for="stitch"><input id="stitch" type="checkbox">Stitch</label>
+      </div>
+      <div class="disclose">
+        <label class="check" for="disclose"><input id="disclose" type="checkbox">Disclose video content</label>
+        <div id="discloseOpts" hidden>
+          <label class="check" for="ownBrand"><input id="ownBrand" type="checkbox">Your brand (promoting yourself or your own business)</label>
+          <label class="check" for="branded"><input id="branded" type="checkbox">Branded content (paid partnership)</label>
+        </div>
+        <div class="note" id="discloseNote"></div>
+      </div>
+      <label class="check" for="aigc"><input id="aigc" type="checkbox" checked>AI-generated content (adds TikTok's AI label)</label>
+      <p class="note" id="consent">By posting, you agree to TikTok's <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en" target="_blank" rel="noopener">Music Usage Confirmation</a>.</p>
+      <button id="post" type="button" disabled>Post to TikTok</button>
+      <div class="status" id="postStatus"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+const API = "https://tsweking-publisher.moh20ali02.workers.dev";
+const VIDEOS = [{"name": "29 Oct · White Friday priority list (store owners)", "url": "https://57cb5cb9-fad3-4469-b0f1-1c196412cafa.frame.claudeusercontent.com/_blob/a240b59d29cf8306b8653d148885ea8a", "caption": "الجمعة البيضاء جاية… وعملاؤك ما يدرون؟ 🛍️\nزر «نبّهني» + يدخلون قبل الكل بساعة + رسالة وحدة قبل العرض.\nاحفظه وأرسله لصاحب متجر تعرفه 👇\n\n#تسويكنغ #الجمعة_البيضاء #متجر_إلكتروني #تجارة_إلكترونية #تسويق"}, {"name": "29 Oct · Broken Arabic text in designs (designers)", "url": "https://57cb5cb9-fad3-4469-b0f1-1c196412cafa.frame.claudeusercontent.com/_blob/2a330ff6ed9293c7c9955f03511147c0", "caption": "تصميمك حلو… بس العربي طالع مقطّع؟ 😩\nفعّل خيار الشرق الأوسط بإعدادات النص، اختر خط معمول للعربي، ولا تمط الكلمات.\nاحفظه وأرسله لمصمم يحتاجه 👇\n\n#تسويكنغ #تصميم_جرافيك #مصمم #خطوط_عربية #نصائح_تصميم"}];
+const $ = id => document.getElementById(id);
+const LABELS = {PUBLIC_TO_EVERYONE:"Everyone",MUTUAL_FOLLOW_FRIENDS:"Friends",FOLLOWER_OF_CREATOR:"Followers",SELF_ONLY:"Only me"};
+let creator = null;
+
+try { $("pin").value = sessionStorage.getItem("pin") || ""; } catch (e) {}
+$("pin").addEventListener("change", () => { try { sessionStorage.setItem("pin", $("pin").value); } catch (e) {} loadCreator(); });
+
+async function call(path, body) {
+  const r = await fetch(API + path, { method: body ? "POST" : "GET", headers: { "content-type": "application/json", "x-pin": $("pin").value }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json();
+  if (!r.ok || j.error) throw new Error(j.error || r.status);
+  return j;
+}
+function setStatus(el, text, cls) { el.textContent = text; el.className = "status " + (cls || ""); }
+
+function showCreator(c) {
+  creator = c;
+  $("who").hidden = false; $("avatar").src = c.creator_avatar_url || ""; $("nick").textContent = c.creator_nickname + (c.creator_username ? " (@" + c.creator_username + ")" : "");
+  $("connect").textContent = "Reconnect";
+  setStatus($("connStatus"), "Connected. Max video length: " + c.max_video_post_duration_sec + " s.", "ok");
+  const sel = $("privacy"); sel.length = 1;
+  c.privacy_level_options.forEach(v => sel.add(new Option(LABELS[v] || v, v)));
+  [["cmt","comment_disabled"],["duet","duet_disabled"],["stitch","stitch_disabled"]].forEach(([id,k]) => { $(id).disabled = !!c[k]; if (c[k]) $(id).checked = false; });
+  validate();
+}
+async function loadCreator() {
+  if (!$("pin").value) return;
+  try { showCreator(await call("/creator")); } catch (e) { setStatus($("connStatus"), e.message === "not_connected" ? "Not connected yet." : "Error: " + e.message, e.message === "not_connected" ? "" : "bad"); }
+}
+
+$("connect").onclick = async () => {
+  try { const { url } = await call("/auth-url"); location.href = url; } catch (e) { setStatus($("connStatus"), "Error: " + e.message, "bad"); }
+};
+
+VIDEOS.forEach(v => $("video").add(new Option(v.name, v.url)));
+function pickVideo() { const v = VIDEOS[$("video").selectedIndex]; $("preview").src = v.url; $("title").value = v.caption; validate(); }
+$("video").onchange = pickVideo;
+$("preview").onloadedmetadata = validate;
+
+$("disclose").onchange = () => { $("discloseOpts").hidden = !$("disclose").checked; if (!$("disclose").checked) { $("ownBrand").checked = $("branded").checked = false; } validate(); };
+["ownBrand","branded","privacy","title"].forEach(id => $(id).addEventListener("input", validate));
+["ownBrand","branded","privacy"].forEach(id => $(id).addEventListener("change", validate));
+
+function validate() {
+  const branded = $("branded").checked, own = $("ownBrand").checked;
+  const so = [...$("privacy").options].find(o => o.value === "SELF_ONLY");
+  if (so) { so.disabled = branded; if (branded && $("privacy").value === "SELF_ONLY") $("privacy").value = ""; }
+  $("discloseNote").textContent = branded ? "Your video will be labeled \"Paid partnership\". Branded content can't be private." : own ? "Your video will be labeled \"Promotional content\"." : "";
+  $("consent").innerHTML = "By posting, you agree to TikTok's " + (branded ? "<a href=\"https://www.tiktok.com/legal/page/global/bc-policy/en\" target=\"_blank\" rel=\"noopener\">Branded Content Policy</a> and " : "") + "<a href=\"https://www.tiktok.com/legal/page/global/music-usage-confirmation/en\" target=\"_blank\" rel=\"noopener\">Music Usage Confirmation</a>.";
+  const dur = $("preview").duration, tooLong = creator && dur && dur > creator.max_video_post_duration_sec;
+  const discloseOk = !$("disclose").checked || own || branded;
+  $("post").disabled = !(creator && $("privacy").value && discloseOk && !tooLong);
+  if (tooLong) setStatus($("postStatus"), "This video is longer than the account allows.", "bad");
+}
+
+$("post").onclick = async () => {
+  $("post").disabled = true; setStatus($("postStatus"), "Uploading to TikTok…");
+  try {
+    const r = await call("/post", { video_url: $("video").value, title: $("title").value, privacy_level: $("privacy").value,
+      disable_comment: !$("cmt").checked, disable_duet: !$("duet").checked, disable_stitch: !$("stitch").checked,
+      brand_content: $("branded").checked, brand_organic: $("ownBrand").checked, is_aigc: $("aigc").checked });
+    for (let i = 0; i < 30; i++) {
+      const s = await call("/status?id=" + encodeURIComponent(r.publish_id));
+      setStatus($("postStatus"), "Status: " + (s.status || "processing") + "…");
+      if (s.status === "PUBLISH_COMPLETE") { setStatus($("postStatus"), "Posted. It can take a few minutes to appear on your TikTok profile.", "ok"); return; }
+      if (s.status === "FAILED") throw new Error(s.fail_reason || "failed");
+      await new Promise(res => setTimeout(res, 5000));
+    }
+    setStatus($("postStatus"), "Uploaded. TikTok is still processing; it will appear on your profile shortly.", "ok");
+  } catch (e) { setStatus($("postStatus"), "Error: " + e.message, "bad"); }
+  finally { validate(); }
+};
+
+(async () => {
+  pickVideo();
+  const q = new URLSearchParams(location.search);
+  if (q.get("code")) {
+    history.replaceState(null, "", location.pathname);
+    if (!$("pin").value) { setStatus($("connStatus"), "Enter the team PIN, then press Connect again.", "bad"); return; }
+    setStatus($("connStatus"), "Finishing connection…");
+    try { showCreator(await call("/exchange", { code: q.get("code") })); } catch (e) { setStatus($("connStatus"), "Error: " + e.message, "bad"); }
+  } else if (q.get("error")) {
+    setStatus($("connStatus"), "TikTok authorization was cancelled.", "bad"); history.replaceState(null, "", location.pathname);
+  } else loadCreator();
+})();
+</script>
+</body>
+</html>
